@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,
+				initial-scale=1,
+				shrink-to-fit=no">
+    <title>
+        WAD-VIEWER
+    </title>
+
+    <!-- Include Bootstrap for styling -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- Include the Bootstrap Table CSS
+for the table -->
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <br>
+
+        <h1 class="text text-success text-center ">
+            Where is All the Data
+        </h1>
+
+        <br>
+        <hr>
+
+        <form>
+            <div class="form-group">
+                <label for="inputURL">The URL where the WAD file is located.</label>
+                <input type="url" class="form-control" id="inputURL" placeholder="http://_/file.wad">
+            </div>
+            <button id="form-group-submit" type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+        <br>
+        <hr>
+
+        <h2 class="text text-success text-center">
+            Header
+        </h2>
+        <table id="header" class="table-striped border-success">
+            <thead>
+                <tr>
+                    <th data-field="identification">
+                        <span class="text-success">
+                            Identification
+                        </span>
+                    </th>
+                    <th data-field="numLumps">
+                        <span class="text-success">
+                            numLumps
+                        </span>
+                    </th>
+                    <th data-field="infoTableOffset">
+                        <span class="text-success">
+                            infoTableOffset
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+        </table>
+
+        <br>
+
+        <h2 class="text text-success text-center">
+            Directory
+        </h2>
+        <table id="directory" class="table-striped border-success">
+            <thead>
+                <tr>
+                    <th data-field="filePos">
+                        <span class="text-success">
+                            filePos
+                        </span>
+                    </th>
+                    <th data-field="size">
+                        <span class="text-success">
+                            size
+                        </span>
+                    </th>
+                    <th data-field="name">
+                        <span class="text-success">
+                            name
+                        </span>
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </div>
+
+    <!-- Include jQuery and other required
+files for Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js">
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js">
+    </script>
+
+    <!-- Include the JavaScript file
+for Bootstrap table -->
+    <script src="https://unpkg.com/bootstrap-table@1.16.0/dist/bootstrap-table.min.js">
+    </script>
+
+    <script type="text/javascript">
+        var EMAPLUMPSINDEX = /* @__PURE__ */ ((EMAPLUMPSINDEX2) => {
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["THINGS"] = 1] = "THINGS";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["LINEDEFS"] = 2] = "LINEDEFS";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["SIDEDDEFS"] = 3] = "SIDEDDEFS";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["VERTEXES"] = 4] = "VERTEXES";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["SEGS"] = 5] = "SEGS";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["SSECTORS"] = 6] = "SSECTORS";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["NODES"] = 7] = "NODES";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["SECTORS"] = 8] = "SECTORS";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["REJECT"] = 9] = "REJECT";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["BLOCKMAP"] = 10] = "BLOCKMAP";
+            EMAPLUMPSINDEX2[EMAPLUMPSINDEX2["COUNT"] = 11] = "COUNT";
+            return EMAPLUMPSINDEX2;
+        })(EMAPLUMPSINDEX || {});
+        class WADMap {
+            constructor(mapIndex, WAD2) {
+                this.things = [];
+                this.lineDefs = [];
+                this.vertexes = [];
+                this.segs = [];
+                this.sSectors = [];
+                this.nodes = [];
+                this.mapIndex = mapIndex;
+                this.WAD = WAD2;
+                this.readThings();
+                this.readLineDefs();
+                this.readVertexes();
+                this.readSegs();
+                this.readSSectors();
+                this.readNodes();
+            }
+            readThings() {
+                const thingIndex = this.mapIndex + 1 /* THINGS */;
+                const numBytes = 10;
+                const lumpInfo = this.WAD.directory[thingIndex];
+                const count = lumpInfo.size / numBytes;
+                for (let i = 0; i < count; i++) {
+                    this.things.push(
+                        this.WAD.getThing(lumpInfo.filePos + i * numBytes)
+                    );
+                }
+            }
+            readLineDefs() {
+                const lineDefIndex = this.mapIndex + 2 /* LINEDEFS */;
+                const numBytes = 14;
+                const lumpInfo = this.WAD.directory[lineDefIndex];
+                const count = lumpInfo.size / numBytes;
+                for (let i = 0; i < count; i++) {
+                    this.lineDefs.push(
+                        this.WAD.getLineDef(lumpInfo.filePos + i * numBytes)
+                    );
+                }
+            }
+            readVertexes() {
+                const vertexIndex = this.mapIndex + 4 /* VERTEXES */;
+                const numBytes = 4;
+                const lumpInfo = this.WAD.directory[vertexIndex];
+                const count = lumpInfo.size / numBytes;
+                for (let i = 0; i < count; i++) {
+                    this.vertexes.push(
+                        this.WAD.readVertex(lumpInfo.filePos + i * numBytes)
+                    );
+                }
+            }
+            readSegs() {
+                const segIndex = this.mapIndex + 5 /* SEGS */;
+                const numBytes = 12;
+                const lumpInfo = this.WAD.directory[segIndex];
+                const count = lumpInfo.size / numBytes;
+                for (let i = 0; i < count; i++) {
+                    this.segs.push(
+                        this.WAD.readSeg(lumpInfo.filePos + i * numBytes)
+                    );
+                }
+            }
+            readSSectors() {
+                const sSectorIndex = this.mapIndex + 6 /* SSECTORS */;
+                const numBytes = 4;
+                const lumpInfo = this.WAD.directory[sSectorIndex];
+                const count = lumpInfo.size / numBytes;
+                for (let i = 0; i < count; i++) {
+                    this.sSectors.push(
+                        this.WAD.readSSector(lumpInfo.filePos + i * numBytes)
+                    );
+                }
+            }
+            readNodes() {
+                const nodeIndex = this.mapIndex + 7 /* NODES */;
+                const numBytes = 28;
+                const lumpInfo = this.WAD.directory[nodeIndex];
+                const count = lumpInfo.size / numBytes;
+                for (let i = 0; i < count; i++) {
+                    this.nodes.push(
+                        this.WAD.readNode(lumpInfo.filePos + i * numBytes)
+                    );
+                }
+            }
+        }
+        class WAD {
+            constructor(buffer) {
+                this.directory = [];
+                this.header = {
+                    identification: ""
+                };
+                //
+                this.getThing = (offset) => ({
+                    x: this.read2Bytes(offset),
+                    y: this.read4Bytes(offset + 2),
+                    angle: this.read2Bytes(offset + 4),
+                    type: this.read2Bytes(offset + 6),
+                    flags: this.read2Bytes(offset + 8)
+                });
+                this.getLineDef = (offset) => ({
+                    startVertex: this.read2Bytes(offset),
+                    endVertex: this.read2Bytes(offset + 2),
+                    flags: this.read2Bytes(offset + 4),
+                    specialType: this.read2Bytes(offset + 6),
+                    sectorTag: this.read2Bytes(offset + 8),
+                    frontSideDef: this.read2Bytes(offset + 10),
+                    backSideDef: this.read2Bytes(offset + 12)
+                });
+                this.readVertex = (offset) => ({
+                    x: this.read2Bytes(offset),
+                    y: this.read2Bytes(offset + 2)
+                });
+                this.readSeg = (offset) => ({
+                    startVertex: this.read2Bytes(offset),
+                    endVertex: this.read2Bytes(offset + 2),
+                    angle: this.read2Bytes(offset + 4),
+                    lineDef: this.read2Bytes(offset + 6),
+                    direction: this.read2Bytes(offset + 8),
+                    offset: this.read2Bytes(offset + 10)
+                });
+                this.readSSector = (offset) => ({
+                    segCount: this.read2Bytes(offset),
+                    firstSeg: this.read2Bytes(offset + 2)
+                });
+                this.readNode = (offset) => ({
+                    x: this.read2Bytes(offset),
+                    y: this.read2Bytes(offset + 2),
+                    dx: this.read2Bytes(offset + 4),
+                    dy: this.read2Bytes(offset + 6),
+                    rightBoundingBox: [
+                        this.read2Bytes(offset + 8),
+                        this.read2Bytes(offset + 10),
+                        this.read2Bytes(offset + 12),
+                        this.read2Bytes(offset + 14)
+                    ],
+                    leftBoundingBox: [
+                        this.read2Bytes(offset + 16),
+                        this.read2Bytes(offset + 18),
+                        this.read2Bytes(offset + 20),
+                        this.read2Bytes(offset + 22)
+                    ],
+                    rightChild: this.read2Bytes(offset + 24),
+                    leftChild: this.read2Bytes(offset + 26)
+                });
+                //
+                this.getMap = (mapIndex) => new WADMap(mapIndex, this);
+                this.buffer = buffer;
+                this.readHeader();
+                this.readDirectory();
+            }
+            read2Bytes(offset) {
+                return this.buffer[offset] | this.buffer[offset + 1] << 8;
+            }
+            read4Bytes(offset) {
+                return this.buffer[offset] | this.buffer[offset + 1] << 8 | this.buffer[offset + 2] << 16 | this.buffer[offset + 3] << 24;
+            }
+            //
+            readHeader() {
+                for (let i = 0; i < 4; i++) {
+                    this.header.identification += String.fromCharCode(this.buffer[i]);
+                }
+                this.header.infoTableOffset = this.read4Bytes(8);
+                this.header.numLumps = this.read4Bytes(4);
+            }
+            readDirectory() {
+                for (let i = 0; i < this.header.numLumps; i++) {
+                    const offset = this.header.infoTableOffset + i * 16;
+                    const directory = { name: "" };
+                    directory.filePos = this.read4Bytes(offset);
+                    directory.size = this.read4Bytes(offset + 4);
+                    for (let j = 0; j < 8; j++) {
+                        directory.name += String.fromCharCode(this.buffer[offset + 8 + j]);
+                    }
+                    directory.name = directory.name.replace(/\0/g, "");
+                    this.directory.push(directory);
+                }
+            }
+        }
+
+        document.getElementById('form-group-submit').addEventListener('click', (e) => {
+            e.preventDefault();
+
+            const url = document.getElementById('inputURL').value;
+
+            const data = fetch(url, { method: 'GET' })
+                .then(response => response?.arrayBuffer?.())
+                .then(buffer => {
+                    const wad = new WAD(new Uint8Array(buffer));
+
+                    console.log(wad)
+
+                    $('table').bootstrapTable('destroy');
+
+                    if (wad === undefined) {
+                        return $('table').bootstrapTable({
+                            data: []
+                        });
+
+                    }
+
+                    $('table#header').bootstrapTable({
+                        data: [wad.header]
+                    });
+
+                    $('table#directory').bootstrapTable({
+                        data: wad.directory
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        })
+    </script>
+
+    <script type="text/javascript">
+        $(document).ready(() => {
+            $('table').bootstrapTable({
+                data: []
+            });
+
+        })
+    </script>
+</body>
+
+</html>
